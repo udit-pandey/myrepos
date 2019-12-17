@@ -1,4 +1,4 @@
-package com.spark.helper.classification;
+package com.spark.common;
 
 public class LabelAndPredictionColumn {
     private String labelColumnName;

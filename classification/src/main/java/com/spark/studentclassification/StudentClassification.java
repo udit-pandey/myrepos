@@ -1,6 +1,8 @@
-package com.spark.helper.classification;
+package com.spark.studentclassification;
 
-import com.spark.helper.SparkHelper;
+import com.spark.common.ClassifierAlgorithm;
+import com.spark.common.LabelAndPredictionColumn;
+import com.spark.common.HelperMethods;
 import org.apache.spark.ml.Pipeline;
 import org.apache.spark.ml.PipelineStage;
 import org.apache.spark.ml.classification.DecisionTreeClassifier;
@@ -11,7 +13,6 @@ import org.apache.spark.ml.feature.StringIndexerModel;
 import org.apache.spark.ml.feature.VectorAssembler;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
 
 import static org.apache.spark.sql.functions.col;
 
@@ -21,18 +22,9 @@ import static org.apache.spark.sql.functions.col;
 public class StudentClassification {
     private LabelAndPredictionColumn labelAndPredictionColumn = new LabelAndPredictionColumn();
 
-    public Dataset<Row> readDataset(String datasetPath) {
-        /***Create the Spark session***/
-        SparkSession sparkSession = SparkHelper.
-                getSparkSession("StudentClassification", "local[*]");
-
-        /***Read the dataset***/
-        Dataset<Row> dataset = sparkSession.read().option("header", true).option("inferschema", true).csv(datasetPath);
-        
-        /***Display first 20 rows, the schema and basic stats for the dataset***/
-        dataset.show();
-        dataset.printSchema();
-        dataset.describe().show();
+    public Dataset<Row> readDatasetAndPrintStats(String appName, String master, String datasetPath) {
+        /***Read the dataset and print basic stats for it***/
+        Dataset<Row> dataset = HelperMethods.readDataset(appName, master, datasetPath);
         dataset.groupBy("SKL").count().show();
         return dataset;
     }
@@ -64,14 +56,14 @@ public class StudentClassification {
                     .setFeaturesCol(vectorAssembler.getOutputCol());
             pipeline.setStages(
                     new PipelineStage[]{stringIndexerModel, vectorAssembler, decisionTreeClassifier, indexToString});
-        } else if (classifierAlgorithm.equals(ClassifierAlgorithm.RANDAOMFOREST)) {
+        } else if (classifierAlgorithm.equals(ClassifierAlgorithm.RANDOMFOREST)) {
             RandomForestClassifier randomForestClassifier = new RandomForestClassifier()
                     .setLabelCol(stringIndexerModel.getOutputCol())
                     .setFeaturesCol(vectorAssembler.getOutputCol());
             pipeline.setStages(
                     new PipelineStage[]{stringIndexerModel, vectorAssembler, randomForestClassifier, indexToString});
         }
-        
+
         /***Executing the pipeline operations***/
         Dataset<Row> transformedDataset = pipeline.fit(trainingData).transform(testData);
         transformedDataset.show();

@@ -1,5 +1,7 @@
-package com.spark.helper.classification;
+package com.spark.studentclassification;
 
+import com.spark.common.ClassifierAlgorithm;
+import com.spark.common.LabelAndPredictionColumn;
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -10,12 +12,12 @@ import org.apache.spark.sql.Row;
  * are evaluated based on their f-score.
  */
 public class CompareModels {
-    public static final String DATASET_PATH = "student-classification\\src\\main\\resources\\UserKnowModelingDataset_Train.csv";
+    public static final String DATASET_PATH = "student-studentclassification\\src\\main\\resources\\UserKnowModelingDataset_Train.csv";
 
     public static void main(String[] args) {
         /***Read the dataset***/
         StudentClassification classification = new StudentClassification();
-        Dataset<Row> dataset = classification.readDataset(DATASET_PATH);
+        Dataset<Row> dataset = classification.readDatasetAndPrintStats("studentClassification", "local[*]", DATASET_PATH);
 
         /***Dataset read is split into training and test data randomly.***/
         Dataset<Row>[] datasets = dataset.randomSplit(new double[]{0.7, 0.3});
@@ -24,7 +26,7 @@ public class CompareModels {
 
         /***Create a pipeline for processing the dataset***/
         Dataset<Row> predictionsDecisionTree = classification.createAndExecutePipeline(ClassifierAlgorithm.DECISIONTREE, trainingData, testData);
-        Dataset<Row> predictionsRandomForest = classification.createAndExecutePipeline(ClassifierAlgorithm.RANDAOMFOREST, trainingData, testData);
+        Dataset<Row> predictionsRandomForest = classification.createAndExecutePipeline(ClassifierAlgorithm.RANDOMFOREST, trainingData, testData);
 
         /***Fetch the label and prediction columns***/
         LabelAndPredictionColumn labelAndPredictionColumn = classification.getLabelAndPredictionColumn();

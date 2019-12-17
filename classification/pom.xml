@@ -9,11 +9,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>student-classification</artifactId>
+    <artifactId>classification</artifactId>
     <dependencies>
         <dependency>
             <groupId>com.ml</groupId>
-            <artifactId>spark-helper</artifactId>
+            <artifactId>common</artifactId>
             <version>1.0</version>
             <scope>compile</scope>
         </dependency>
